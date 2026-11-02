@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="dark" style="color-scheme: dark;"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sandhya Garments – Stock</title>
+<style>
+:root{--bg:#f1f3f6;--card:#fff;--tx:#212121;--mu:#878787;--bd:#e0e0e0;--ac:#2874f0;--ok:#388e3c;--no:#d32f2f;--hd:#2874f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17151a;--card:#222028;--tx:#f1eee9;--mu:#a29da8;--bd:#37333d;--ac:#e8745a;--ok:#4cc27f;--no:#ef6b5b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17151a;--card:#222028;--tx:#f1eee9;--mu:#a29da8;--bd:#37333d;--ac:#e8745a;--ok:#4cc27f;--no:#ef6b5b;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--hd,#2874f0);color:#fff;padding:14px max(16px,calc((100% - 1000px)/2)) 12px}
+h1{margin:0;font-size:24px;font-style:italic;font-weight:800}
+header p{margin:3px 0 0;color:#ffe500;font-size:13px;font-style:italic}
+.bar{max-width:1000px;margin:auto;padding:8px 16px;display:flex;flex-direction:column;gap:10px}
+input[type=search]{width:100%;padding:11px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 13px;border-radius:20px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.grid{max-width:1000px;margin:auto;padding:8px 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:3px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s}.card:hover{box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.img{position:relative;height:200px;display:flex;align-items:center;justify-content:center;font-size:64px;background-size:cover;background-position:center}
+.img.out{filter:grayscale(.8) opacity(.6)}
+.fav{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:20px;cursor:pointer;color:#999}
+.fav.on{color:#e0245e}
+.tag{position:absolute;left:8px;top:8px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:12px;color:#fff}
+.tag.ok{background:var(--ok)}.tag.no{background:var(--no)}
+.info{padding:12px;display:flex;flex-direction:column;gap:6px}
+.nm{font-weight:600;font-size:15px}
+.pr{color:var(--tx);font-weight:700;font-size:17px}.mrp{color:var(--mu);font-weight:400;font-size:13px}.off{color:var(--ok);font-size:13px;font-weight:600}
+.cat{color:var(--mu);font-size:12px}
+.cols{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--bd);cursor:pointer;position:relative;padding:0}
+.dot.sel{outline:2px solid var(--ac);outline-offset:2px}
+.dot.x::after{content:"";position:absolute;left:50%;top:-3px;width:2px;height:30px;background:var(--no);transform:translateX(-50%) rotate(45deg)}
+.cn{font-size:13px;color:var(--mu)}
+.empty{grid-column:1/-1;text-align:center;color:var(--mu);padding:40px 0}
+.ab{max-width:1000px;margin:auto;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
+.ab button,.adm button{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer}
+.ab button.hot{background:var(--ac);color:#fff;border-color:var(--ac)}
+.adm{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}
+</style>
+</head>
+<body>
+<header>
+<h1>🧵 Sandhya Garments</h1>
+<p>Cloth shop · Stock dekhiye – kya available hai, kya khatam. Khareedne ke liye dukaan par aaiye.</p>
+</header>
+<div id="adm" class="ab"></div>
+<div class="bar">
+<input type="search" id="q" placeholder="Kapda dhundhiye…">
+<div class="chips" id="cats"></div>
+<div class="chips">
+<button class="chip" id="onlyIn">✅ Sirf available</button>
+<button class="chip" id="onlyFav">❤️ Meri pasand</button>
+</div>
+</div>
+<div class="grid" id="grid"></div>
+
+<script>
+// ====== YAHAN APNA STOCK LIKHO ======
+// s:true = available, s:false = out of stock. img: photo ka data link (khali = rang dikhega)
+var ITEMS=[{"n":"Cotton Kurti","cat":"Kurti","p":599,"e":"👗","c":[{"c":"Laal","h":"#c0392b","s":true},{"c":"Neela","h":"#2c5fa8","s":true},{"c":"Peela","h":"#e6b422","s":false}]},{"n":"Banarasi Saree","cat":"Saree","p":2499,"e":"🥻","c":[{"c":"Maroon","h":"#7b1e3a","s":true},{"c":"Hara","h":"#1f7a4d","s":false}]},{"n":"Formal Shirt","cat":"Shirt","p":799,"e":"👔","c":[{"c":"Safed","h":"#f2f2f2","s":true},{"c":"Aasmani","h":"#8ec5e8","s":true},{"c":"Kala","h":"#222","s":true}]},{"n":"Printed Suit Set","cat":"Suit","p":1299,"e":"👚","c":[{"c":"Gulabi","h":"#e87aa0","s":false},{"c":"Purple","h":"#7a4fb0","s":false}]},{"n":"Kids Frock","cat":"Bachche","p":449,"e":"👧","c":[{"c":"Gulabi","h":"#f2a0be","s":true},{"c":"Peela","h":"#f3d23c","s":true}]},{"n":"Pathani Kurta","cat":"Kurta","p":999,"e":"🧥","c":[{"c":"Safed","h":"#f2f2f2","s":true},{"c":"Grey","h":"#8a8a8a","s":true},{"c":"Neela","h":"#1d3b73","s":false}]},{"n":"Denim Jeans","cat":"Jeans","p":1099,"e":"👖","c":[{"c":"Dark Blue","h":"#1c2f55","s":true},{"c":"Light Blue","h":"#6d93c4","s":false}]},{"n":"Dupatta","cat":"Dupatta","p":299,"e":"🧣","c":[{"c":"Laal","h":"#c0392b","s":true},{"c":"Hara","h":"#2e8b57","s":true},{"c":"Kesariya","h":"#e8791d","s":true}]}];
+// ====================================
+
+var st={q:"",cat:"Sab",inOnly:false,favOnly:false,sel:{}},favs={};
+try{favs=JSON.parse(localStorage.getItem("favs")||"{}")}catch(e){}
+function saveFavs(){try{localStorage.setItem("favs",JSON.stringify(favs))}catch(e){}}
+function avail(it){return it.c.some(function(x){return x.s})}
+function el(id){return document.getElementById(id)}
+
+function drawCats(){
+var cs=["Sab"];ITEMS.forEach(function(i){if(cs.indexOf(i.cat)<0)cs.push(i.cat)});
+el("cats").innerHTML=cs.map(function(c){return '<button class="chip'+(st.cat===c?' on':'')+'" data-c="'+c+'">'+c+'</button>'}).join("");
+}
+function draw(){
+var list=ITEMS.map(function(it,i){return{it:it,i:i}}).filter(function(o){
+var it=o.it;
+if(st.cat!=="Sab"&&it.cat!==st.cat)return false;
+if(st.q&&(it.n+" "+it.cat).toLowerCase().indexOf(st.q.toLowerCase())<0)return false;
+if(st.inOnly&&!avail(it))return false;
+if(st.favOnly&&!favs[o.i])return false;
+return true});
+el("grid").innerHTML=list.length?list.map(function(o){
+var it=o.it,i=o.i,si=st.sel[i]||0,cur=it.c[si],ok=avail(it);
+var bg=it.img&&!cur.img?it.img:cur.img;
+var style=bg?'background-image:url('+bg+')':'background:'+cur.h;
+return '<div class="card"><div class="img'+(cur.s?'':' out')+'" style="'+style+'">'+(bg?'':it.e)
++'<span class="tag '+(ok?'ok':'no')+'">'+(ok?'Available':'Out of stock')+'</span>'
++'<button class="fav'+(favs[i]?' on':'')+'" data-f="'+i+'" aria-label="Pasand">'+(favs[i]?'♥':'♡')+'</button></div>'
++'<div class="info"><div class="cat">'+it.cat+'</div><div class="nm">'+it.n+'</div><div class="pr">₹'+it.p+(it.m&&it.m>it.p?' <s class="mrp">₹'+it.m+'</s> <span class="off">'+Math.round(100-it.p*100/it.m)+'% off</span>':'')+'</div>'
++'<div class="cols">'+it.c.map(function(x,k){return '<button class="dot'+(k===si?' sel':'')+(x.s?'':' x')+'" style="background:'+x.h+'" data-i="'+i+'" data-k="'+k+'" aria-label="'+x.c+'"></button>'}).join("")+'</div>'
++'<div class="cn">'+cur.c+' – '+(cur.s?'<b style="color:var(--ok)">hai</b>':'<b style="color:var(--no)">khatam</b>')+'</div></div>'+(ADM?admRow(i):'')+'</div>'}).join("")
+:'<div class="empty">Kuch nahi mila 🙁</div>';
+}
+el("q").oninput=function(e){st.q=e.target.value;draw()};
+el("onlyIn").onclick=function(e){st.inOnly=!st.inOnly;e.currentTarget.classList.toggle("on",st.inOnly);draw()};
+el("onlyFav").onclick=function(e){st.favOnly=!st.favOnly;e.currentTarget.classList.toggle("on",st.favOnly);draw()};
+el("cats").onclick=function(e){var c=e.target.getAttribute("data-c");if(c){st.cat=c;drawCats();draw()}};
+el("grid").onclick=function(e){
+var t=e.target,f=t.getAttribute("data-f"),k=t.getAttribute("data-k");
+if(f!==null){favs[f]=!favs[f];if(!favs[f])delete favs[f];saveFavs();draw()}
+else if(k!==null){st.sel[t.getAttribute("data-i")]=+k;draw()}};
+// ---- Malik (owner) edit mode: sirf owner ko dikhta hai ----
+var ADM=false,dirty=false,U={canEdit:function(){return location.hash==="#malik"}};
+function mark(){dirty=true;st.sel=st.sel;drawCats();drawAdm();draw()}
+function admRow(i){var b=function(a,t){return '<button data-a="'+a+'" data-i="'+i+'">'+t+'</button>'};return '<div class="adm">'+b('stk','Hai/Khatam')+b('img','📷 Photo')+b('prc','₹ Price')+b('col','+ Colour')+b('rmc','− Ye colour')+b('del','🗑 Kapda')+'</div>'}
+function drawAdm(){var a=el("adm");if(!U||!U.canEdit()){a.innerHTML="";return}
+a.innerHTML=ADM?'<button data-g="new">＋ Naya kapda</button><button data-g="save" class="'+(dirty?'hot':'')+'">💾 Nayi file download karo</button><button data-g="off">Edit band</button>':'<button data-g="on">✏️ Malik: Edit karo</button>'}
+async function shrink(f){var b=await createImageBitmap(f),r=Math.min(1,700/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=b.width*r;c.height=b.height*r;c.getContext("2d").drawImage(b,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.7)}
+function save(){
+var d=document.cloneNode(true);["grid","cats","adm"].forEach(function(id){d.getElementById(id).innerHTML=""});
+d.getElementById("q").removeAttribute("value");d.getElementById("onlyIn").className="chip";d.getElementById("onlyFav").className="chip";
+var s=d.querySelectorAll("script"),sc=s[s.length-1];
+sc.textContent=sc.textContent.replace(/var ITEMS=[\s\S]*?(?=\n\/\/ =+\n)/,function(){return "var ITEMS="+JSON.stringify(ITEMS).replace(/</g,"\\u003c")+";"});
+var b=new Blob(["<!DOCTYPE html>\n"+d.documentElement.outerHTML],{type:"text/html"}),l=document.createElement("a");l.href=URL.createObjectURL(b);l.download="index.html";document.body.appendChild(l);l.click();l.remove();dirty=false;drawAdm()}
+el("adm").onclick=function(e){var g=e.target.getAttribute("data-g");if(!g)return;
+if(g==="on"){ADM=true;drawAdm();draw()}
+else if(g==="off"){if(dirty&&!confirm("Save nahi kiya, phir bhi band karein?"))return;ADM=false;drawAdm();draw()}
+else if(g==="save"){save()}
+else if(g==="new"){var n=prompt("Kapde ka naam?");if(!n)return;var c=prompt("Category? (jaise Kurti, Saree, Shirt)","Kurti")||"Anya";var p=parseInt(prompt("Price (₹)?","500"),10)||0;ITEMS.push({n:n,cat:c,p:p,e:"👕",c:[{c:"Colour 1",h:"#999999",s:true}]});mark()}};
+el("grid").addEventListener("click",function(e){var a=e.target.getAttribute("data-a");if(!a||!ADM)return;
+var i=+e.target.getAttribute("data-i"),it=ITEMS[i],k=st.sel[i]||0,cur=it.c[k];
+if(a==="stk"){cur.s=!cur.s;mark()}
+else if(a==="prc"){var p=parseInt(prompt("Naya price (₹)?",it.p),10);if(p>=0){it.p=p;var m=parseInt(prompt("Cut wala purana price (MRP)? Nahi chahiye to khali chhodo",it.m||""),10);it.m=m>0?m:undefined;mark()}}
+else if(a==="rmc"){if(it.c.length<2){alert("Kam se kam ek colour rahega");return}if(confirm(cur.c+" hataein?")){it.c.splice(k,1);st.sel[i]=0;mark()}}
+else if(a==="del"){if(confirm(it.n+" poora hataein?")){ITEMS.splice(i,1);st.sel={};favs={};saveFavs();mark()}}
+else if(a==="col"){var n=prompt("Colour ka naam?");if(!n)return;var ci=document.createElement("input");ci.type="color";ci.onchange=function(){it.c.push({c:n,h:ci.value,s:true});st.sel[i]=it.c.length-1;mark()};ci.click()}
+else if(a==="img"){var fi=document.createElement("input");fi.type="file";fi.accept="image/*";fi.onchange=async function(){try{cur.img=await shrink(fi.files[0]);mark()}catch(x){alert("Photo nahi lagi, dobara try karo")}};fi.click()}});
+drawAdm();window.onhashchange=drawAdm;
+drawCats();draw();
+</script>
+
+
+</body></html>
